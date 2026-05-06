@@ -154,7 +154,7 @@
 <div id="quiz-container">
     <div id="quiz-screen">
         <div class="header">
-            <h1>🌲 Kuis IPA 🌲</h1>
+            <h1>🌲 Kuis IPA Rimba 🌲</h1>
             <div class="info" id="progress">Mempersiapkan rute...</div>
         </div>
         <div class="question-box">
@@ -313,8 +313,7 @@
         const finalScore = Math.round((scoreCount / currentQuizData.length) * 100);
         document.getElementById('score-out').innerText = finalScore;
         
-        let msg = finalScore >= 80 ? "HEBAT KAMU BUD" : "Bagus!";
-        else if (finalScore >= 60) msg = BELAJAR LAGI SANA, PLENGER
+        let msg = finalScore >= 80 ? "HEBAT KAMU BANG" : "Bagus! Teruslah menjelajah. 🦊";
         document.getElementById('summary').innerText = `Skor: ${finalScore}. ${msg} (${scoreCount}/${currentQuizData.length})`;
     }
 
