@@ -314,7 +314,8 @@
         document.getElementById('score-out').innerText = finalScore;
         
         let msg = finalScore >= 80 ? "AI NIH" : "GOBLOK LU YA";
-        document.getElementById('summary').innerText = `Skor: ${finalScore}. ${msg} (${scoreCount}/${currentQuizData.length})`;
+         document.getElementById('summary').innerText = `Skor: ${finalScore}. ${msg} (${scoreCount}/${currentQuizData.length})`;
+        else if (finalScore >= 60) msg = " NILAI NYA JELEK BGT, GOBLOG LU YA"
     }
 
     shuffleAndRestart();
