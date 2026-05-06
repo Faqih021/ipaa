@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis IPA IX</title>
+    <title>Kuis IPA IX - Tantangan Rimba Acak</title>
     <style>
         :root {
             --leaf-green: #2ecc71;
             --dark-forest: #1b5e20;
             --dirt-brown: #795548;
             --bush-green: #27ae60;
-            --sky-blue: #e3f2fd;
             --white: rgba(255, 255, 255, 0.9);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: linear-gradient(135deg, #11998e, #38ef7d); /* Gradasi Hutan */
+            background: linear-gradient(135deg, #11998e, #38ef7d);
             margin: 0;
             display: flex;
             justify-content: center;
@@ -24,10 +23,8 @@
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* Dekorasi Pohon & Semak (CSS Art) */
         .decoration {
             position: fixed;
             bottom: 0;
@@ -54,7 +51,6 @@
             border: 5px solid var(--dark-forest);
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             position: relative;
-            z-index: 10;
         }
 
         .header h1 {
@@ -63,7 +59,6 @@
             font-size: 1.5rem;
             margin: 0;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         .info {
@@ -93,20 +88,20 @@
         .opt {
             padding: 15px 20px;
             border: 2px solid #c8e6c9;
-            border-radius: 50px; /* Bentuk lonjong seperti daun */
+            border-radius: 50px;
             background: white;
             cursor: pointer;
             transition: 0.3s;
             font-size: 1rem;
             font-weight: 500;
             color: #333;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: left;
         }
 
-        .opt:hover {
+        .opt:hover:not(:disabled) {
             transform: translateY(-3px);
-            border-color: var(--leaf-green);
             background: #f0fff4;
+            border-color: var(--leaf-green);
         }
 
         .opt.correct-flash {
@@ -136,109 +131,95 @@
             cursor: pointer;
             transition: 0.3s;
             color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
         #prev-btn { background: #95a5a6; }
         #reset-btn { background: var(--dirt-brown); }
         #next-btn { background: var(--dark-forest); }
 
-        .btn:hover:not(:disabled) {
-            filter: brightness(1.2);
-            transform: scale(1.05);
-        }
-
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
         #result-screen { text-align: center; display: none; }
-        
-        .score-box {
-            font-size: 4rem;
-            color: var(--dark-forest);
-            margin: 20px 0;
-            font-weight: 900;
-        }
+        .score-box { font-size: 4rem; color: var(--dark-forest); font-weight: 900; }
     </style>
 </head>
 <body>
 
 <div class="decoration">
     <span class="bush" style="left: 5%">🌳</span>
-    <span class="bush" style="left: 15%">🌿</span>
     <span class="bush" style="left: 30%">🌲</span>
-    <span class="bush" style="right: 25%">🌳</span>
     <span class="bush" style="right: 10%">🌱</span>
-    <span class="bush" style="right: -5%">🍀</span>
 </div>
 
 <div id="quiz-container">
     <div id="quiz-screen">
         <div class="header">
-            <h1>🌲 Kuis IPA 🌲</h1>
-            <div class="info" id="progress">Mulai Menjelajah...</div>
+            <h1>🌲 Kuis IPA Rimba 🌲</h1>
+            <div class="info" id="progress">Mempersiapkan rute...</div>
         </div>
         <div class="question-box">
-            <div class="q-text" id="q-text">Sabar ya, lagi cari soal...</div>
+            <div class="q-text" id="q-text">Mencari soal di dalam hutan...</div>
             <div id="feedback-msg" style="font-weight: bold; margin-bottom: 10px; min-height: 20px; text-align: center;"></div>
             <div class="options-grid" id="options"></div>
         </div>
         <div class="nav-bar">
             <button class="btn" id="prev-btn" onclick="move(-1)">Kembali</button>
-            <button class="btn" id="reset-btn" onclick="shuffleAndRestart()">Acak Kuis</button>
+            <button class="btn" id="reset-btn" onclick="shuffleAndRestart()">Acak & Ulang</button>
             <button class="btn" id="next-btn" onclick="move(1)">Lanjut</button>
         </div>
     </div>
 
     <div id="result-screen">
-        <h1>🐾 Kuis Selesai!</h1>
+        <h1>🐾 Penjelajahan Selesai!</h1>
         <div class="score-box" id="score-out">0</div>
-        <p id="summary" style="font-size: 1.1rem; color: #555;"></p>
+        <p id="summary"></p>
         <button class="btn" style="background: var(--dark-forest); width: 100%;" onclick="shuffleAndRestart()">Mulai Petualangan Baru</button>
     </div>
 </div>
 
 <script>
+    // Data soal dengan posisi jawaban benar (c) yang sudah disebar acak
     const originalQuizData = [
-        { q: "Penyakit perut yang disebabkan oleh air tercemar bakteri Vibrio cholerae adalah...", a: ["Tipus", "Kolera", "Disentri", "Diare"], c: 1 },
-        { q: "Ciri air yang tercemar akibat pertambangan ilegal biasanya mengandung logam berat yang mengakibatkan...", a: ["Air menjadi jernih", "Munculnya biota air baru", "Air bersifat toksik/racun", "Kadar oksigen meningkat"], c: 2 },
-        { q: "Mengapa pemilahan sampah organik dan anorganik sangat penting?", a: ["Agar tempat sampah penuh", "Memudahkan proses pengomposan dan daur ulang", "Menambah biaya angkut", "Mempercepat pembusukan plastik"], c: 1 },
-        { q: "Menggunakan kembali botol bekas menjadi tempat pensil merupakan penerapan prinsip...", a: ["Reduce", "Reuse", "Recycle", "Replace"], c: 1 },
-        { q: "Dampak pengelolaan sampah yang buruk terhadap lingkungan adalah...", a: ["Meningkatkan kebersihan udara", "Menyebabkan banjir dan pencemaran tanah", "Menyuburkan tanaman hias", "Memperindah pemandangan"], c: 1 },
-        { q: "Gas utama yang menyebabkan terjadinya pemanasan global adalah...", a: ["Oksigen", "Karbon Dioksida (CO2)", "Nitrogen", "Argon"], c: 1 },
-        { q: "Dampak pemanasan global bagi kutub bumi adalah...", a: ["Menebalnya lapisan es", "Mencairnya es kutub", "Suhu udara mendingin", "Habitat beruang kutub meluas"], c: 1 },
-        { q: "Efek rumah kaca terjadi karena...", a: ["Terlalu banyak rumah kaca", "Panas matahari terperangkap oleh gas atmosfer", "Matahari bersinar terlalu redup", "Hutan terlalu lebat"], c: 1 },
-        { q: "Tindakan yang dapat mengurangi dampak pemanasan global adalah...", a: ["Menggunakan kendaraan pribadi", "Membakar hutan", "Menanam pohon dan hemat energi", "Membangun pabrik baru"], c: 2 },
-        { q: "Sumber emisi karbon dioksida terbesar di atmosfer berasal dari...", a: ["Pernapasan tumbuhan", "Pembakaran bahan bakar fosil", "Fotosintesis", "Uap air"], c: 1 },
+        { q: "Penyakit perut yang disebabkan oleh air tercemar bakteri Vibrio cholerae adalah...", a: ["Tipus", "Disentri", "Diare", "Kolera"], c: 3 },
+        { q: "Ciri air yang tercemar akibat pertambangan ilegal biasanya mengandung logam berat bersifat...", a: ["Toksik/racun", "Jernih alami", "Kaya oksigen", "Banyak ikan"], c: 0 },
+        { q: "Mengapa pemilahan sampah organik dan anorganik sangat penting?", a: ["Menambah volume sampah", "Memudahkan proses daur ulang", "Mempercepat plastik hancur", "Agar sampah bau"], c: 1 },
+        { q: "Menggunakan kembali botol bekas menjadi tempat pensil merupakan penerapan prinsip...", a: ["Reduce", "Recycle", "Reuse", "Replace"], c: 2 },
+        { q: "Dampak pengelolaan sampah yang buruk terhadap lingkungan adalah...", a: ["Pemandangan asri", "Tanah jadi subur", "Banjir dan polusi", "Udara bersih"], c: 2 },
+        { q: "Gas utama yang menyebabkan terjadinya pemanasan global adalah...", a: ["Nitrogen", "Karbon Dioksida (CO2)", "Oksigen", "Argon"], c: 1 },
+        { q: "Dampak pemanasan global bagi kutub bumi adalah...", a: ["Habitat meluas", "Suhu mendingin", "Es menebal", "Es mencair"], c: 3 },
+        { q: "Efek rumah kaca terjadi karena...", a: ["Panas terperangkap gas atmosfer", "Hutan terlalu lebat", "Rumah kaca terlalu banyak", "Matahari meredup"], c: 0 },
+        { q: "Tindakan yang dapat mengurangi dampak pemanasan global adalah...", a: ["Membakar hutan", "Menanam pohon", "Pakai AC non-stop", "Pakai motor terus"], c: 1 },
+        { q: "Sumber emisi karbon dioksida terbesar di atmosfer berasal dari...", a: ["Fotosintesis", "Uap air", "Pembakaran fosil", "Pernapasan ikan"], c: 2 },
         { q: "Upaya meningkatkan ketahanan pangan melalui bibit unggul disebut...", a: ["Intensifikasi", "Ekstensifikasi", "Diversifikasi", "Rehabilitasi"], c: 0 },
-        { q: "Perubahan iklim dapat menurunkan ketahanan pangan karena...", a: ["Memudahkan petani bekerja", "Menyebabkan jadwal tanam terganggu/gagal panen", "Pupuk makin efektif", "Tanah makin subur"], c: 1 },
-        { q: "Faktor yang dapat mengancam ketersediaan pangan nasional adalah...", a: ["Pertanian organik", "Alih fungsi lahan menjadi pemukiman", "Curah hujan teratur", "Teknologi modern"], c: 1 },
-        { q: "Salah satu penyebab terjadinya krisis energi adalah...", a: ["Ketersediaan energi matahari", "Kebutuhan energi fosil yang terus meningkat", "Penggunaan sepeda", "Hemat listrik"], c: 1 },
-        { q: "Manfaat penggunaan energi alternatif (seperti panel surya) adalah...", a: ["Menghasilkan banyak polusi", "Ramah lingkungan dan tidak habis", "Biaya operasional sangat mahal", "Susah didapatkan"], c: 1 },
-        { q: "Bioteknologi konvensional memanfaatkan...", a: ["Rekayasa DNA", "Mikroorganisme secara utuh/alami", "Peralatan canggih", "Kloning sel"], c: 1 },
-        { q: "Pasangan produk dan prinsip bioteknologi yang benar adalah...", a: ["Keju - Bakteri", "Tempe - Virus", "Yogurt - Jamur", "Roti - Alga"], c: 0 },
-        { q: "Jamur Saccharomyces cerevisiae pada pembuatan roti berfungsi untuk...", a: ["Membunuh bakteri", "Mengubah rasa jadi asam", "Menghasilkan CO2 agar adonan mengembang", "Menambah protein"], c: 2 },
-        { q: "Perbedaan utama bioteknologi konvensional dan modern adalah...", a: ["Bahan bakunya", "Warna produknya", "Penggunaan teknik rekayasa genetika", "Lokasi produksinya"], c: 2 },
-        { q: "Contoh penerapan bioteknologi modern adalah...", a: ["Pembuatan tapai", "Bayi tabung / DNA rekombinan", "Pembuatan kecap", "Pembuatan oncom"], c: 1 },
-        { q: "Penerapan bioteknologi dalam kehidupan sehari-hari contohnya penggunaan insulin untuk...", a: ["Penyakit jantung", "Penyakit diabetes", "Penyakit asma", "Penyakit kulit"], c: 1 },
-        { q: "Manfaat bioteknologi bagi manusia di bidang pangan adalah...", a: ["Membuat makanan cepat busuk", "Menciptakan varietas tanaman unggul", "Meningkatkan penggunaan pestisida", "Menurunkan nilai gizi"], c: 1 },
-        { q: "Dampak negatif bioteknologi bagi ekosistem adalah...", a: ["Meningkatkan keanekaragaman", "Pencemaran genetik/hilangnya plasma nutfah", "Udara menjadi lebih bersih", "Tanah menjadi lebih subur"], c: 1 },
-        { q: "Bagian sel yang berfungsi sebagai unit pembawa informasi genetik adalah...", a: ["Ribosom", "Gen", "Vakuola", "Dinding sel"], c: 1 },
-        { q: "Fungsi kromosom dalam pewarisan sifat adalah...", a: ["Tempat sintesis protein", "Membawa kode genetik (DNA) dari induk", "Menyimpan cadangan makanan", "Mengatur masuknya air"], c: 1 },
-        { q: "Hubungan antara DNA, gen, dan kromosom yang benar adalah...", a: ["Gen terdiri dari kumpulan kromosom", "Kromosom berada di dalam gen", "Gen berada di dalam kromosom dan tersusun atas DNA", "DNA tidak mengandung gen"], c: 2 },
-        { q: "Sifat yang tetap muncul meskipun berpasangan dengan sifat yang berbeda disebut...", a: ["Resesif", "Dominan", "Intermediet", "Hibrid"], c: 1 },
-        { q: "Hasil persilangan monohibrid dominan penuh antara Mm x Mm menghasilkan rasio genotipe...", a: ["1:2:1", "3:1", "1:1", "4:0"], c: 0 },
-        { q: "Pewarisan sifat pada makhluk hidup bertujuan untuk...", a: ["Menjaga kelangsungan hidup jenisnya", "Membuat makhluk hidup cepat mati", "Mengurangi jumlah populasi", "Menghilangkan ciri induk"], c: 0 },
-        { q: "Contoh pewarisan sifat yang dapat diamati langsung pada manusia adalah...", a: ["Jenis rambut dan warna kulit", "Kecerdasan saja", "Hobi", "Pakaian"], c: 0 },
-        { q: "Ciri terjadinya reaksi kimia pada pembakaran kertas adalah...", a: ["Warna tetap putih", "Terbentuknya abu (zat baru)", "Bentuk kertas tetap", "Kertas menjadi basah"], c: 1 },
-        { q: "Contoh reaksi kimia dalam kehidupan sehari-hari yang merugikan adalah...", a: ["Pembuatan tapai", "Besi berkarat", "Fotosintesis", "Memasak air"], c: 1 },
-        { q: "Perubahan warna pada buah apel yang dibiarkan di udara terbuka menunjukkan reaksi...", a: ["Penguapan", "Oksidasi", "Pembekuan", "Penyubliman"], c: 1 },
-        { q: "Gas yang terbentuk saat cuka dicampur dengan baking soda adalah...", a: ["Oksigen", "Hidrogen", "Karbon dioksida", "Nitrogen"], c: 2 },
-        { q: "Terbentuknya endapan putih saat mencampurkan dua larutan kimia menunjukkan adanya...", a: ["Perubahan fisika", "Reaksi kimia", "Penguapan", "Pencairan"], c: 1 },
-        { q: "Reaksi kimia yang ditandai dengan penurunan suhu lingkungan disebut reaksi...", a: ["Eksoterm", "Endoterm", "Isoterm", "Polterm"], c: 1 },
-        { q: "Reaksi pembakaran kayu merupakan contoh reaksi...", a: ["Reduksi", "Oksidasi (dengan oksigen)", "Sublimasi", "Penguapan"], c: 1 },
-        { q: "Salah satu contoh reaksi oksidasi yang terjadi di dalam tubuh adalah...", a: ["Pencernaan mekanik", "Respirasi seluler", "Penyaringan darah", "Gerak otot"], c: 1 },
-        { q: "Proses korosi pada logam besi dapat dihambat dengan cara...", a: ["Merendam di air garam", "Pengecatan", "Membiarkan di tempat lembap", "Mengamplas terus menerus"], c: 1 },
-        { q: "Manfaat reaksi kimia fotosintesis bagi makhluk hidup adalah menghasilkan...", a: ["Karbon dioksida", "Karbohidrat dan Oksigen", "Limbah beracun", "Panas yang tinggi"], c: 1 }
+        { q: "Perubahan iklim dapat menurunkan ketahanan pangan karena...", a: ["Tanah subur", "Gagal panen/cuaca ekstrem", "Pupuk murah", "Hama punah"], c: 1 },
+        { q: "Faktor yang dapat mengancam ketersediaan pangan nasional adalah...", a: ["Alih fungsi lahan tani", "Hujan teratur", "Teknologi modern", "Pupuk organik"], c: 0 },
+        { q: "Salah satu penyebab terjadinya krisis energi adalah...", a: ["Hemat listrik", "Pakai sepeda", "Konsumsi fosil berlebih", "Surya melimpah"], c: 2 },
+        { q: "Manfaat penggunaan energi alternatif (panel surya) adalah...", a: ["Polusi tinggi", "Biaya murah selamanya", "Ramah lingkungan", "Susah dicari"], c: 2 },
+        { q: "Bioteknologi konvensional memanfaatkan...", a: ["Mikroorganisme utuh", "Rekayasa DNA", "Kloning", "Peralatan robotik"], c: 0 },
+        { q: "Pasangan produk dan mikroorganisme bioteknologi yang benar adalah...", a: ["Tempe - Virus", "Keju - Bakteri", "Roti - Alga", "Yogurt - Jamur"], c: 1 },
+        { q: "Jamur Saccharomyces cerevisiae pada roti berfungsi untuk...", a: ["Membuat asam", "Membunuh bakteri", "Menambah protein", "Menghasilkan CO2"], c: 3 },
+        { q: "Perbedaan utama bioteknologi konvensional dan modern adalah...", a: ["Lokasi pabrik", "Warna produk", "Rekayasa genetika", "Harga bahan"], c: 2 },
+        { q: "Contoh penerapan bioteknologi modern adalah...", a: ["Pembuatan tapai", "Kecap manis", "DNA rekombinan", "Oncom merah"], c: 2 },
+        { q: "Penerapan bioteknologi dalam medis contohnya penggunaan insulin untuk...", a: ["Penyakit kulit", "Diabetes", "Penyakit asma", "Penyakit flu"], c: 1 },
+        { q: "Manfaat bioteknologi bagi manusia di bidang pangan adalah...", a: ["Menurunkan gizi", "Menciptakan bibit unggul", "Mempercepat busuk", "Pestisida naik"], c: 1 },
+        { q: "Dampak negatif bioteknologi bagi ekosistem adalah...", a: ["Tanah subur", "Udara bersih", "Hilangnya plasma nutfah", "Hama punah"], c: 2 },
+        { q: "Bagian sel yang berfungsi sebagai unit pembawa informasi genetik adalah...", a: ["Gen", "Ribosom", "Vakuola", "Dinding sel"], c: 0 },
+        { q: "Fungsi kromosom dalam pewarisan sifat adalah...", a: ["Sintesis protein", "Membawa kode DNA", "Mengatur air", "Mencerna gula"], c: 1 },
+        { q: "Hubungan antara DNA, gen, dan kromosom yang benar adalah...", a: ["Gen di dalam kromosom", "Kromosom di dalam gen", "DNA tidak ada gen", "Gen lebih besar"], c: 0 },
+        { q: "Sifat yang tetap muncul meskipun berpasangan dengan sifat berbeda disebut...", a: ["Resesif", "Intermediet", "Hibrid", "Dominan"], c: 3 },
+        { q: "Hasil persilangan monohibrid dominan penuh (Mm x Mm) rasio genotipenya...", a: ["3:1", "1:2:1", "1:1", "9:3:3:1"], c: 1 },
+        { q: "Pewarisan sifat pada makhluk hidup bertujuan untuk...", a: ["Populasi turun", "Ciri induk hilang", "Menjaga kelestarian jenis", "Mempercepat mati"], c: 2 },
+        { q: "Contoh pewarisan sifat yang nampak langsung pada manusia adalah...", a: ["Hobi", "IQ", "Pakaian", "Warna kulit"], c: 3 },
+        { q: "Ciri terjadinya reaksi kimia pada pembakaran kertas adalah...", a: ["Kertas basah", "Warna tetap", "Terbentuk abu", "Bentuk utuh"], c: 2 },
+        { q: "Contoh reaksi kimia dalam kehidupan yang merugikan adalah...", a: ["Besi berkarat", "Buat tempe", "Masak nasi", "Fotosintesis"], c: 0 },
+        { q: "Perubahan warna pada buah apel yang dikupas menunjukkan reaksi...", a: ["Penguapan", "Oksidasi", "Pembekuan", "Penyubliman"], c: 1 },
+        { q: "Gas yang terbentuk saat cuka dicampur dengan baking soda adalah...", a: ["Nitrogen", "Oksigen", "Karbon dioksida", "Hidrogen"], c: 2 },
+        { q: "Terbentuknya endapan putih saat mencampurkan larutan kimia menunjukkan...", a: ["Reaksi kimia", "Perubahan fisik", "Penguapan", "Pencairan"], c: 0 },
+        { q: "Reaksi kimia yang ditandai dengan penurunan suhu lingkungan disebut...", a: ["Eksoterm", "Isoterm", "Hipoterm", "Endoterm"], c: 3 },
+        { q: "Reaksi pembakaran kayu merupakan contoh reaksi...", a: ["Oksidasi", "Reduksi", "Sublimasi", "Penguapan"], c: 0 },
+        { q: "Salah satu contoh reaksi oksidasi di dalam tubuh adalah...", a: ["Gerak kaki", "Respirasi seluler", "Dengar suara", "Penyaringan air"], c: 1 },
+        { q: "Proses korosi pada logam besi dapat dihambat dengan cara...", a: ["Air garam", "Lembap", "Pengecatan", "Amplas terus"], c: 2 },
+        { q: "Manfaat reaksi kimia fotosintesis bagi makhluk hidup adalah menghasilkan...", a: ["Karbohidrat & O2", "CO2 & Panas", "Racun", "Limbah"], c: 0 }
     ];
 
     let currentQuizData = [];
@@ -288,20 +269,19 @@
                 }
                 
                 if (userAnswers[current] === data.c) {
-                    fbMsg.innerText = "🍃 Benar sekali!";
+                    fbMsg.innerText = "🍃 Mantap! Benar.";
                     fbMsg.style.color = "var(--dark-forest)";
                 } else {
-                    fbMsg.innerText = "🍂 Waduh, kurang tepat...";
+                    fbMsg.innerText = "🍂 Waduh, salah rute...";
                     fbMsg.style.color = "var(--dirt-brown)";
                 }
             }
-
             btn.onclick = () => handleSelect(i);
             optContainer.appendChild(btn);
         });
 
         document.getElementById('prev-btn').disabled = current === 0;
-        document.getElementById('next-btn').innerText = current === currentQuizData.length - 1 ? "Lihat Hasil 🏁" : "Lanjut ➔";
+        document.getElementById('next-btn').innerText = current === currentQuizData.length - 1 ? "Hasil Akhir" : "Lanjut";
     }
 
     function handleSelect(index) {
@@ -311,7 +291,7 @@
 
     function move(step) {
         if (step === 1 && userAnswers[current] === null) {
-            alert("Pilih satu jalan dulu sebelum lanjut!");
+            alert("Pilih jawaban dulu!");
             return;
         }
         current += step;
@@ -333,16 +313,12 @@
         const finalScore = Math.round((scoreCount / currentQuizData.length) * 100);
         document.getElementById('score-out').innerText = finalScore;
         
-        let msg = "";
-        if(finalScore >= 80) msg = "WAH AI NIH!";
-        else if(finalScore >= 60) msg = "Hebat kamu bud. 🦊";
-        else msg = "Ayo belajar lagi agar tidak GOVLOG! 🐰";
-        
-        document.getElementById('summary').innerText = `Skor kamu ${finalScore}. ${msg} (Benar ${scoreCount} dari ${currentQuizData.length})`;
+        let msg = finalScore >= 80 ? "AI NIH" : "TERTANGKAP KAU AI. 🦊";
+        document.getElementById('summary').innerText = `Skor: ${finalScore}. ${msg} (${scoreCount}/${currentQuizData.length})`;
     }
 
     shuffleAndRestart();
 </script>
-
 </body>
 </html>
+
